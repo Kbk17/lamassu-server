@@ -18,6 +18,7 @@ import telnyx from './telnyx'
 import trongrid from './trongrid'
 import twilio from './twilio'
 import vonage from './vonage'
+import _zonda from './zonda'
 
 const schemas = (markets = {}) => {
   const binance = _binance(markets?.binance)
@@ -27,6 +28,7 @@ const schemas = (markets = {}) => {
   const cex = _cex(markets?.cex)
   const itbit = _itbit(markets?.itbit)
   const kraken = _kraken(markets?.kraken)
+  const zonda = _zonda(markets?.zonda)
 
   return {
     [bitgo.code]: bitgo,
@@ -48,7 +50,8 @@ const schemas = (markets = {}) => {
     [trongrid.code]: trongrid,
     [binance.code]: binance,
     [bitfinex.code]: bitfinex,
-    [sumsub.code]: sumsub
+    [sumsub.code]: sumsub,
+    [zonda.code]: zonda
   }
 }
 
