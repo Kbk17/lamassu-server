@@ -16,8 +16,8 @@ export default {
       long: true
     },
     {
-      code: 'secret',
-      display: 'Secret Key',
+      code: 'privateKey',
+      display: 'Private Key',
       component: SecretInputFormik
     }
   ],
@@ -26,9 +26,9 @@ export default {
       apiKey: Yup.string()
         .max(100, 'The API key is too long')
         .required('The API key is required'),
-      secret: Yup.string()
-        .max(100, 'The secret key is too long')
-        .test(secretTest(account?.secret, 'secret key'))
+      privateKey: Yup.string()
+        .max(100, 'The private key is too long')
+        .test(secretTest(account?.privateKey, 'private key'))
     })
   }
 } 
