@@ -23,10 +23,10 @@ export default {
   ],
   getValidationSchema: account => {
     return Yup.object().shape({
-      apiKey: Yup.string()
+      apiKey: Yup.string('The API key must be a string')
         .max(100, 'The API key is too long')
         .required('The API key is required'),
-      privateKey: Yup.string()
+      privateKey: Yup.string('The private key must be a string')
         .max(100, 'The private key is too long')
         .test(secretTest(account?.privateKey, 'private key'))
     })
