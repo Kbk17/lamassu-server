@@ -79,7 +79,9 @@ const ChooseExchange = ({ data: currentData, addData }) => {
     itbit:
       'https://support.lamassu.is/hc/en-us/articles/360026195032-itBit-trading',
     bitstamp:
-      'https://support.lamassu.is/hc/en-us/articles/115001206911-Bitstamp-trading'
+      'https://support.lamassu.is/hc/en-us/articles/115001206911-Bitstamp-trading',
+    zonda:
+      'https://support.lamassu.is/hc/en-us/articles/115001206891-Kraken-trading'
   }
 
   return (
@@ -104,7 +106,7 @@ const ChooseExchange = ({ data: currentData, addData }) => {
             <Info3>
               Make sure you set up {schema[selected].name} to enter the
               necessary information below. Please follow the instructions on our
-              support page if you haven’t.
+              support page if you haven't.
             </Info3>
           </div>
           <SupportLinkButton
