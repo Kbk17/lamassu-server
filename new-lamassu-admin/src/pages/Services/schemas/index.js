@@ -18,6 +18,7 @@ import telnyx from './telnyx'
 import trongrid from './trongrid'
 import twilio from './twilio'
 import vonage from './vonage'
+import zonda from './zonda'
 
 export default {
   [bitgo.code]: bitgo,
@@ -39,5 +40,6 @@ export default {
   [trongrid.code]: trongrid,
   [binance.code]: binance,
   [bitfinex.code]: bitfinex,
-  [sumsub.code]: sumsub
+  [sumsub.code]: sumsub,
+  [zonda.code]: zonda
 }
