@@ -10,6 +10,17 @@ export const getItems = (accountsConfig, accounts, type, crypto) => {
   console.log("accountsConfig:", accountsConfig);
   console.log("Szukam Zondy w accountsConfig:", accountsConfig.filter(a => a.code === 'zonda'));
   
+  // Dodaj Zondę, jeśli szukamy giełdy a jej nie ma w konfiguracji
+  if (type === 'exchange' && !accountsConfig.some(a => a.code === 'zonda')) {
+    console.log(`Dodaję Zondę do accountsConfig, ponieważ nie jest tam obecna`);
+    accountsConfig.push({
+      code: 'zonda',
+      display: 'Zonda',
+      class: 'exchange',
+      cryptos: [crypto]
+    });
+  }
+  
   // Upewnijmy się, że Zonda jest dostępna dla każdej kryptowaluty
   const zondaConfigIdx = accountsConfig.findIndex(a => a.code === 'zonda' && a.class === type);
   if (zondaConfigIdx !== -1) {

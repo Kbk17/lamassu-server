@@ -17,6 +17,7 @@ import { formatLong } from 'src/utils/string'
 import FormRenderer from './FormRenderer'
 import schemas from './schemas'
 import { secretTest } from './schemas/helper'
+import Zonda from './Zonda'
 
 const GET_INFO = gql`
   query getData {
@@ -165,63 +166,26 @@ const Services = () => {
         {console.log("Czy Zonda istnieje w schematach:", "zonda" in schemas)}
         {console.log("Szczegóły schematu Zondy:", schemas["zonda"])}
         
-        {/* Renderowanie wszystkich schematów włącznie z Zondą */}
-        {R.values(schemas).map(schema => {
-          console.log("Rendering schema:", schema?.code);
-          return (
-            <Grid item key={schema.code}>
-              <SingleRowTable
-                editMessage={'Configure ' + schema.title}
-                title={schema.title}
-                onEdit={() => setEditingSchema(schema)}
-                items={getItems(schema.code, schema.elements)}
-              />
-            </Grid>
-          );
-        })}
+        {/* Zawsze renderuj nasz dedykowany komponent Zonda */}
+        <Zonda />
         
-        {/* Wymuszenie renderowania Zondy, jeśli nie została już wyrenderowana */}
-        {!R.values(schemas).some(schema => schema?.code === 'zonda') && (
-          <Grid item key="zonda-forced">
-            <SingleRowTable
-              editMessage={'Configure Zonda (Exchange)'}
-              title={'Zonda (Exchange)'}
-              onEdit={() => {
-                const zondaSchema = {
-                  code: 'zonda',
-                  name: 'Zonda',
-                  title: 'Zonda (Exchange)',
-                  elements: [
-                    {
-                      code: 'apiKey',
-                      display: 'API Key',
-                      component: TextInputFormik,
-                      face: true,
-                      long: true
-                    },
-                    {
-                      code: 'privateKey',
-                      display: 'Private Key',
-                      component: SecretInputFormik
-                    }
-                  ],
-                  getValidationSchema: account => {
-                    return Yup.object().shape({
-                      apiKey: Yup.string('The API key must be a string')
-                        .max(100, 'The API key is too long')
-                        .required('The API key is required'),
-                      privateKey: Yup.string('The private key must be a string')
-                        .max(100, 'The private key is too long')
-                        .test(secretTest(account?.privateKey, 'private key'))
-                    })
-                  }
-                };
-                setEditingSchema(zondaSchema);
-              }}
-              items={[]}
-            />
-          </Grid>
-        )}
+        {/* Renderowanie wszystkich schematów z pominięciem Zondy */}
+        {R.values(schemas)
+          .filter(schema => schema?.code !== 'zonda')
+          .map(schema => {
+            console.log("Rendering schema:", schema?.code);
+            return (
+              <Grid item key={schema.code}>
+                <SingleRowTable
+                  editMessage={'Configure ' + schema.title}
+                  title={schema.title}
+                  onEdit={() => setEditingSchema(schema)}
+                  items={getItems(schema.code, schema.elements)}
+                />
+              </Grid>
+            );
+          })
+        }
       </Grid>
       {editingSchema && (
         <Modal
