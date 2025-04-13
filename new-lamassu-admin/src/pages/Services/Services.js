@@ -3,6 +3,7 @@ import { makeStyles, Grid } from '@material-ui/core'
 import gql from 'graphql-tag'
 import * as R from 'ramda'
 import React, { useState } from 'react'
+import * as Yup from 'yup'
 
 import Modal from 'src/components/Modal'
 import { SecretInput } from 'src/components/inputs/formik'
@@ -60,12 +61,26 @@ const Services = () => {
   console.log("Services component render");
 
   const getItems = (code, elements) => {
-    const faceElements = R.filter(R.prop('face'))(elements)
-    const values = accounts[code] || {}
-    return R.map(({ display, code, long }) => ({
+    console.log(`Getting items for ${code}`, elements);
+    
+    if (!elements) {
+      console.error(`No elements found for ${code}`);
+      return [];
+    }
+    
+    const faceElements = R.filter(R.prop('face'))(elements);
+    console.log(`Face elements for ${code}:`, faceElements);
+    
+    const values = accounts[code] || {};
+    console.log(`Values for ${code}:`, values);
+    
+    const result = R.map(({ display, code, long }) => ({
       label: display,
       value: long ? formatLong(values[code]) : values[code]
-    }))(faceElements)
+    }))(faceElements);
+    
+    console.log(`Final items for ${code}:`, result);
+    return result;
   }
 
   const updateSettings = element => {
@@ -107,35 +122,59 @@ const Services = () => {
     )
   }
 
-  const getValidationSchema = ({ code, getValidationSchema }) =>
-    getValidationSchema(accounts[code])
+  const getValidationSchema = ({ code, getValidationSchema }) => {
+    console.log("Getting validation schema for:", code);
+    console.log("Schema object:", schemas[code]);
+    console.log("getValidationSchema exists?", !!getValidationSchema);
+    
+    try {
+      if (!getValidationSchema) {
+        console.error(`Missing getValidationSchema for ${code}`);
+        return Yup.object(); // Fallback do pustego schematu
+      }
+      return getValidationSchema(accounts[code]);
+    } catch (error) {
+      console.error(`Error getting validation schema for ${code}:`, error);
+      return Yup.object(); // Fallback do pustego schematu
+    }
+  }
 
   return (
     <div className={classes.wrapper}>
       <TitleSection title="3rd Party Services" />
       <Grid container spacing={4}>
-        {R.values(schemas).map(schema => (
-          <Grid item key={schema.code}>
-            <SingleRowTable
-              editMessage={'Configure ' + schema.title}
-              title={schema.title}
-              onEdit={() => setEditingSchema(schema)}
-              items={getItems(schema.code, schema.elements)}
-            />
-          </Grid>
-        ))}
+        {console.log("Schemas to render:", Object.keys(schemas))}
+        {R.values(schemas).map(schema => {
+          console.log("Rendering schema:", schema?.code);
+          return (
+            <Grid item key={schema.code}>
+              <SingleRowTable
+                editMessage={'Configure ' + schema.title}
+                title={schema.title}
+                onEdit={() => setEditingSchema(schema)}
+                items={getItems(schema.code, schema.elements)}
+              />
+            </Grid>
+          );
+        })}
         
-        {/* Wymuszenie renderowania Zondy */}
-        {schemas['zonda'] && (
-          <Grid item key="zonda">
-            <SingleRowTable
-              editMessage={'Configure Zonda (Exchange)'}
-              title={'Zonda (Exchange)'}
-              onEdit={() => setEditingSchema(schemas['zonda'])}
-              items={getItems('zonda', schemas['zonda'].elements)}
-            />
-          </Grid>
-        )}
+        {/* Wymuszenie renderowania Zondy w bardziej bezpośredni sposób */}
+        <Grid item key="zonda-forced">
+          <SingleRowTable
+            editMessage={'Configure Zonda (Exchange)'}
+            title={'Zonda (Exchange)'}
+            onEdit={() => {
+              console.log("Editing Zonda schema");
+              console.log("Schema exists?", !!schemas['zonda']);
+              if (schemas['zonda']) {
+                setEditingSchema(schemas['zonda']);
+              } else {
+                console.error("Zonda schema not found!");
+              }
+            }}
+            items={schemas['zonda'] ? getItems('zonda', schemas['zonda'].elements) : []}
+          />
+        </Grid>
       </Grid>
       {editingSchema && (
         <Modal
