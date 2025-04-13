@@ -1,10 +1,9 @@
 import * as Yup from 'yup'
+
 import SecretInputFormik from 'src/components/inputs/formik/SecretInput'
 import TextInputFormik from 'src/components/inputs/formik/TextInput'
-import { secretTest } from './helper'
 
-// Dodaję trochę logów, aby sprawdzić, czy ten plik jest poprawnie ładowany
-console.log('Ładowanie schematu Zonda...');
+import { secretTest } from './helper'
 
 export default {
   code: 'zonda',

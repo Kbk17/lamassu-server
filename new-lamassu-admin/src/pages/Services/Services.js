@@ -8,12 +8,15 @@ import * as Yup from 'yup'
 import Modal from 'src/components/Modal'
 import { SecretInput } from 'src/components/inputs/formik'
 import CheckboxInput from 'src/components/inputs/formik/Checkbox'
+import TextInputFormik from 'src/components/inputs/formik/TextInput'
+import SecretInputFormik from 'src/components/inputs/formik/SecretInput'
 import TitleSection from 'src/components/layout/TitleSection'
 import SingleRowTable from 'src/components/single-row-table/SingleRowTable'
 import { formatLong } from 'src/utils/string'
 
 import FormRenderer from './FormRenderer'
 import schemas from './schemas'
+import { secretTest } from './schemas/helper'
 
 const GET_INFO = gql`
   query getData {
@@ -66,6 +69,19 @@ const Services = () => {
     if (!elements) {
       console.error(`No elements found for ${code}`);
       return [];
+    }
+    
+    // Specjalna obsługa dla Zondy
+    if (code === 'zonda' && (!elements || elements.length === 0)) {
+      console.log("Próbuję użyć standardowych elementów dla Zondy");
+      elements = [
+        {
+          code: 'apiKey',
+          display: 'API Key',
+          face: true,
+          long: true
+        }
+      ];
     }
     
     const faceElements = R.filter(R.prop('face'))(elements);
@@ -144,6 +160,12 @@ const Services = () => {
       <TitleSection title="3rd Party Services" />
       <Grid container spacing={4}>
         {console.log("Schemas to render:", Object.keys(schemas))}
+        
+        {/* Specjalne logowanie dla Zondy */}
+        {console.log("Czy Zonda istnieje w schematach:", "zonda" in schemas)}
+        {console.log("Szczegóły schematu Zondy:", schemas["zonda"])}
+        
+        {/* Renderowanie wszystkich schematów włącznie z Zondą */}
         {R.values(schemas).map(schema => {
           console.log("Rendering schema:", schema?.code);
           return (
@@ -158,23 +180,48 @@ const Services = () => {
           );
         })}
         
-        {/* Wymuszenie renderowania Zondy w bardziej bezpośredni sposób */}
-        <Grid item key="zonda-forced">
-          <SingleRowTable
-            editMessage={'Configure Zonda (Exchange)'}
-            title={'Zonda (Exchange)'}
-            onEdit={() => {
-              console.log("Editing Zonda schema");
-              console.log("Schema exists?", !!schemas['zonda']);
-              if (schemas['zonda']) {
-                setEditingSchema(schemas['zonda']);
-              } else {
-                console.error("Zonda schema not found!");
-              }
-            }}
-            items={schemas['zonda'] ? getItems('zonda', schemas['zonda'].elements) : []}
-          />
-        </Grid>
+        {/* Wymuszenie renderowania Zondy, jeśli nie została już wyrenderowana */}
+        {!R.values(schemas).some(schema => schema?.code === 'zonda') && (
+          <Grid item key="zonda-forced">
+            <SingleRowTable
+              editMessage={'Configure Zonda (Exchange)'}
+              title={'Zonda (Exchange)'}
+              onEdit={() => {
+                const zondaSchema = {
+                  code: 'zonda',
+                  name: 'Zonda',
+                  title: 'Zonda (Exchange)',
+                  elements: [
+                    {
+                      code: 'apiKey',
+                      display: 'API Key',
+                      component: TextInputFormik,
+                      face: true,
+                      long: true
+                    },
+                    {
+                      code: 'privateKey',
+                      display: 'Private Key',
+                      component: SecretInputFormik
+                    }
+                  ],
+                  getValidationSchema: account => {
+                    return Yup.object().shape({
+                      apiKey: Yup.string('The API key must be a string')
+                        .max(100, 'The API key is too long')
+                        .required('The API key is required'),
+                      privateKey: Yup.string('The private key must be a string')
+                        .max(100, 'The private key is too long')
+                        .test(secretTest(account?.privateKey, 'private key'))
+                    })
+                  }
+                };
+                setEditingSchema(zondaSchema);
+              }}
+              items={[]}
+            />
+          </Grid>
+        )}
       </Grid>
       {editingSchema && (
         <Modal
