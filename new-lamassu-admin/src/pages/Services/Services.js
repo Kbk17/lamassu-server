@@ -50,9 +50,14 @@ const Services = () => {
 
   const accounts = data?.accounts ?? {}
   
-  // Dodajemy console.log aby sprawdzić schematy
+  // Debug GraphQL data
+  console.log("GraphQL data:", data);
+  
+  // Dodajemy więcej logów debugowania
   console.log("Available schemas:", schemas);
   console.log("Zonda schema:", schemas['zonda']);
+  console.log("All schemas keys:", Object.keys(schemas));
+  console.log("Services component render");
 
   const getItems = (code, elements) => {
     const faceElements = R.filter(R.prop('face'))(elements)
@@ -119,6 +124,18 @@ const Services = () => {
             />
           </Grid>
         ))}
+        
+        {/* Wymuszenie renderowania Zondy */}
+        {schemas['zonda'] && (
+          <Grid item key="zonda">
+            <SingleRowTable
+              editMessage={'Configure Zonda (Exchange)'}
+              title={'Zonda (Exchange)'}
+              onEdit={() => setEditingSchema(schemas['zonda'])}
+              items={getItems('zonda', schemas['zonda'].elements)}
+            />
+          </Grid>
+        )}
       </Grid>
       {editingSchema && (
         <Modal

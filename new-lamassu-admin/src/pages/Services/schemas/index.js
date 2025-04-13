@@ -20,7 +20,15 @@ import twilio from './twilio'
 import vonage from './vonage'
 import zonda from './zonda'
 
-export default {
+// Więcej logów debugowania
+console.log('Imported schemas:');
+console.log('Zonda schema:', zonda);
+console.log('Zonda code:', zonda.code);
+console.log('Binance schema:', binance);
+console.log('Binance code:', binance.code);
+
+// Upewniam się, że kod działa
+const schemas = {
   [bitgo.code]: bitgo,
   [galoy.code]: galoy,
   [bitstamp.code]: bitstamp,
@@ -42,4 +50,10 @@ export default {
   [bitfinex.code]: bitfinex,
   [sumsub.code]: sumsub,
   [zonda.code]: zonda
-}
+};
+
+console.log('Final schemas object:', schemas);
+console.log('Does zonda exist in schemas?', 'zonda' in schemas);
+console.log('Does schemas["zonda"] exist?', !!schemas['zonda']);
+
+export default schemas;
