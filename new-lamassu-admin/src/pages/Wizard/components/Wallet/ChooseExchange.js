@@ -57,6 +57,21 @@ const ChooseExchange = ({ data: currentData, addData }) => {
 
   const coin = coinUtils.getEquivalentCode(currentData.coin)
   const exchanges = getItems(accountsConfig, accounts, 'exchange', coin)
+  
+  // Upewniamy się, że Zonda jest na liście
+  console.log("Sprawdzam czy Zonda jest na liście:", 
+    exchanges.filled.some(e => e.code === 'zonda') || 
+    exchanges.unfilled.some(e => e.code === 'zonda')
+  );
+  
+  // Jeśli Zondy nie ma na liście, dodajmy ją ręcznie
+  const zondaConfig = accountsConfig.find(a => a.code === 'zonda' && a.class === 'exchange');
+  if (zondaConfig && 
+      !exchanges.filled.some(e => e.code === 'zonda') && 
+      !exchanges.unfilled.some(e => e.code === 'zonda')) {
+    console.log("Dodaję Zondę do listy giełd");
+    exchanges.unfilled.push(zondaConfig);
+  }
 
   const submit = () => {
     if (!selected) return setError(true)

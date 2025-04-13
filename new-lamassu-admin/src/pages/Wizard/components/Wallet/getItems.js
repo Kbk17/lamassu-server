@@ -6,7 +6,29 @@ const sameClass = type => R.propEq('class', type)
 const filterConfig = (crypto, type) =>
   R.filter(it => sameClass(type)(it) && contains(crypto)(it))
 export const getItems = (accountsConfig, accounts, type, crypto) => {
+  console.log(`getItems dla ${type} i kryptowaluty ${crypto}`);
+  console.log("accountsConfig:", accountsConfig);
+  console.log("Szukam Zondy w accountsConfig:", accountsConfig.filter(a => a.code === 'zonda'));
+  
+  // Upewnijmy się, że Zonda jest dostępna dla każdej kryptowaluty
+  const zondaConfigIdx = accountsConfig.findIndex(a => a.code === 'zonda' && a.class === type);
+  if (zondaConfigIdx !== -1) {
+    // Upewnij się, że Zonda obsługuje bieżącą kryptowalutę
+    if (!accountsConfig[zondaConfigIdx].cryptos.includes(crypto)) {
+      console.log(`Dodaję ${crypto} do obsługiwanych walut dla Zondy`);
+      accountsConfig[zondaConfigIdx] = {
+        ...accountsConfig[zondaConfigIdx],
+        cryptos: [...accountsConfig[zondaConfigIdx].cryptos, crypto]
+      };
+    }
+  } else {
+    console.log(`Zonda nie znaleziona dla typu ${type}. To może być problem.`);
+  }
+  
   const fConfig = filterConfig(crypto, type)(accountsConfig)
+  console.log(`Przefiltrowane konfiguracje dla ${crypto} i ${type}:`, fConfig);
+  console.log(`Czy Zonda jest w przefiltrowanych konfiguracjach:`, fConfig.some(it => it.code === 'zonda'));
+  
   const find = code => accounts && accounts[code]
 
   const [filled, unfilled] = R.partition(({ code }) => {
@@ -16,6 +38,11 @@ export const getItems = (accountsConfig, accounts, type, crypto) => {
     const { getValidationSchema } = schema[code]
     return getValidationSchema(account).isValidSync(account)
   })(fConfig)
+  
+  console.log("Wypełnione (filled):", filled);
+  console.log("Niewypełnione (unfilled):", unfilled);
+  console.log("Zonda w wypełnionych:", filled.some(it => it.code === 'zonda'));
+  console.log("Zonda w niewypełnionych:", unfilled.some(it => it.code === 'zonda'));
 
   return { filled, unfilled }
 }
