@@ -49,6 +49,10 @@ const Services = () => {
   const classes = useStyles()
 
   const accounts = data?.accounts ?? {}
+  
+  // Dodajemy console.log aby sprawdzić schematy
+  console.log("Available schemas:", schemas);
+  console.log("Zonda schema:", schemas['zonda']);
 
   const getItems = (code, elements) => {
     const faceElements = R.filter(R.prop('face'))(elements)
